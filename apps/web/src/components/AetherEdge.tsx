@@ -27,7 +27,6 @@ export const AetherEdge = ({
   const targetEvent = useAetherStore((s) => s.events.find((e) => e.id === target));
   const isEdgeOnActivePath = useAetherStore((s) => s.activePathNodeIds.includes(target));
 
-  const isActive = data?.isActive;
   const isHallucination = data?.isHallucination;
   const isDestabilized = data?.isDestabilized;
   const isCorrection = targetEvent?.metadata?.selfCorrection;

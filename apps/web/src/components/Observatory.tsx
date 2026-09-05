@@ -23,7 +23,6 @@ import {
   Activity,
   Play,
   Pause,
-  RotateCcw,
   SkipBack,
   SkipForward,
   Upload,
@@ -127,7 +126,7 @@ const ObservatoryInner = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
   const [introActive, setIntroActive] = useState(false);
-  const [endingActive, setEndingActive] = useState(false);
+  const [prevIntroSession, setPrevIntroSession] = useState<string | null>(null);
   const { setCenter } = useReactFlow();
 
   const handleStepInto = () => {
@@ -193,27 +192,28 @@ const ObservatoryInner = () => {
     return "Core AI Cognition Traversal & Action Plan";
   }, [activeSession]);
 
-  // Handle cinematic 2.4s intro sequence when a session starts at 0
-  useEffect(() => {
-    if (activeSession && timelinePosition === 0) {
-      setIntroActive(true);
-      setIsPlaying(false);
-      const timer = setTimeout(() => {
-        setIntroActive(false);
-        setIsPlaying(true);
-      }, 2400);
-      return () => clearTimeout(timer);
-    }
-  }, [activeSession, timelinePosition]);
+  // Reset into the cinematic intro whenever a fresh session starts at 0.
+  // Adjusted during render (React's documented pattern for resetting state
+  // on prop change) so the timer effect below only ever fires state changes
+  // from an async callback, not synchronously from the effect body.
+  if (activeSession && timelinePosition === 0 && prevIntroSession !== activeSession) {
+    setPrevIntroSession(activeSession);
+    setIntroActive(true);
+    setIsPlaying(false);
+  }
 
-  // Handle ending panel trigger when playback completes
+  // Turn the intro off after its 2.4s cinematic duration.
   useEffect(() => {
-    if (timelinePosition >= 1.0 && !isPlaying && activeSession) {
-      setEndingActive(true);
-    } else {
-      setEndingActive(false);
-    }
-  }, [timelinePosition, isPlaying, activeSession]);
+    if (!introActive) return;
+    const timer = setTimeout(() => {
+      setIntroActive(false);
+      setIsPlaying(true);
+    }, 2400);
+    return () => clearTimeout(timer);
+  }, [introActive]);
+
+  // Ending panel is purely derived from playback state — no effect needed.
+  const endingActive = timelinePosition >= 1.0 && !isPlaying && !!activeSession;
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -997,7 +997,7 @@ const ObservatoryInner = () => {
                   Cognition Patching
                 </span>
                 <p className="text-[10px] text-white/50 leading-normal">
-                  Surgically patch the agent's thought context to redirect its downstream trajectory away from the failure vector.
+                  Surgically patch the agent&apos;s thought context to redirect its downstream trajectory away from the failure vector.
                 </p>
                 <textarea
                   className="w-full h-24 bg-black/50 border border-white/10 rounded-xl p-3 text-[11px] text-white/90 focus:border-cyan-500/50 outline-none resize-none font-sans leading-relaxed focus:shadow-[0_0_15px_rgba(6,182,212,0.1)] transition-all"

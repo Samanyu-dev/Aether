@@ -272,9 +272,7 @@ class AetherSession:
         return event["id"]
 
     def _send_events(self, events: List[dict]):
-        # Skip server request if we are in pure offline mode without backend running
-        if not self.sdk.endpoint or "localhost" in self.sdk.endpoint:
-            # Check if backend is alive before making blocking requests
+        if not self.sdk.endpoint:
             return
         try:
             if len(events) == 1:

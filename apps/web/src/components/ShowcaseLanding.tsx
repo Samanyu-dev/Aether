@@ -6,8 +6,7 @@ import {
   Cpu, 
   Brain, 
   AlertTriangle, 
-  Terminal, 
-  GitBranch, 
+  Terminal,
   ArrowRight,
   Sparkles,
   Shield,
@@ -836,10 +835,10 @@ const OnboardingConsole = () => {
           >
             <div className="text-white/20 select-none"># 2. Instrument in 1 line</div>
             <div className="text-white/90 font-semibold"><span className="text-cyan-400">from</span> aether <span className="text-cyan-400">import</span> AgentTracer</div>
-            <div className="text-white/90">tracer = AgentTracer(project=<span className="text-amber-300">"assistant"</span>)</div>
-            <div className="text-white/90"><span className="text-cyan-400">with</span> tracer.session(<span className="text-amber-300">"chat-agent"</span>):</div>
-            <div className="text-white/50">  thought = tracer.thought(<span className="text-amber-300">"Analyzing request..."</span>)</div>
-            <div className="text-white/50">  tracer.tool_call(<span className="text-amber-300">"web_search"</span>)</div>
+            <div className="text-white/90">tracer = AgentTracer(project=<span className="text-amber-300">&quot;assistant&quot;</span>)</div>
+            <div className="text-white/90"><span className="text-cyan-400">with</span> tracer.session(<span className="text-amber-300">&quot;chat-agent&quot;</span>):</div>
+            <div className="text-white/50">  thought = tracer.thought(<span className="text-amber-300">&quot;Analyzing request...&quot;</span>)</div>
+            <div className="text-white/50">  tracer.tool_call(<span className="text-amber-300">&quot;web_search&quot;</span>)</div>
           </motion.div>
         )}
 
@@ -906,7 +905,6 @@ const OnboardingConsole = () => {
 
 export const ShowcaseLanding = () => {
   const loadReplay = useAetherStore((s) => s.loadReplay);
-  const [activeTab, setActiveTab] = useState<"flow" | "engine" | "lifecycle">("flow");
   const [localSessions, setLocalSessions] = useState<Array<{
     filename: string;
     session_id: string;

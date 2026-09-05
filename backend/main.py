@@ -7,7 +7,7 @@ replay APIs, and structured event schemas.
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Set
 import json
 import asyncio
 import uuid
@@ -20,6 +20,8 @@ app = FastAPI(
     description="Local-first AI cognition debugger and reasoning visualization backend",
     version="0.2.0",
 )
+
+_startup_time = time.time()
 
 # CORS configuration
 app.add_middleware(
@@ -142,11 +144,11 @@ class CognitionStore:
             if e.parentId:
                 parent_map[e.parentId].append(e.id)
 
-        def depth(eid: str) -> int:
-            children = parent_map.get(eid, [])
+        def depth(eid: str, seen: Set[str]) -> int:
+            children = [c for c in parent_map.get(eid, []) if c not in seen]
             if not children:
                 return 0
-            return 1 + max(depth(c) for c in children)
+            return 1 + max(depth(c, seen | {eid}) for c in children)
 
         roots = [e for e in events if not e.parentId]
         max_depth = max((depth(r.id) for r in roots), default=0)
@@ -225,8 +227,6 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 # ─── Breakpoint Manager ──────────────────────────────────────────────────────
-from collections import defaultdict
-from typing import Set
 
 class BreakpointManager:
     def __init__(self):
@@ -320,7 +320,7 @@ async def root():
 
 @app.get("/health")
 async def health():
-    return {"status": "healthy", "uptime": time.time()}
+    return {"status": "healthy", "uptime": time.time() - _startup_time}
 
 # ── Breakpoints ──
 
